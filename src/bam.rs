@@ -1,8 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
-use automerge::{AutoCommit, ObjId, ReadDoc, transaction::Transactable};
+use automerge::{
+    AutoCommit, AutomergeError, Change, ChangeHash, ObjId, ReadDoc, transaction::Transactable,
+};
 
-use crate::crdt::Crdt;
+use crate::crdt::{Crdt, CrdtLib};
 
 pub struct BenchAM {
     doc: AutoCommit,
@@ -39,17 +41,13 @@ impl Crdt for BenchAM {
         Rc::new(RefCell::new(Self { doc, btext }))
     }
 
-    fn name(&self) -> &str {
-        "Automerge"
-    }
-
     fn encoded_state(&mut self) -> Vec<u8> {
         self.doc.save()
     }
 
-    fn apply_update(&mut self, update: Vec<u8>) {
+    fn apply_update(&mut self, update: &[u8]) {
         self.doc
-            .load_incremental(&update)
+            .load_incremental(update)
             .expect("apply update success");
     }
 
@@ -70,5 +68,26 @@ impl Crdt for BenchAM {
 
     fn text(&self) -> String {
         self.doc.text(self.btext.clone()).unwrap()
+    }
+
+    fn crdt_lib(&self) -> crate::crdt::CrdtLib {
+        CrdtLib::Automerge
+    }
+}
+
+impl BenchAM {
+    pub fn checkpoint(&mut self) -> Vec<ChangeHash> {
+        self.doc.get_heads()
+    }
+
+    pub fn get_changes(&mut self, have_deps: &[ChangeHash]) -> Vec<&Change> {
+        self.doc.get_changes(have_deps)
+    }
+
+    pub fn fork_at(&mut self, heads: &[ChangeHash]) -> Result<Self, AutomergeError> {
+        let d = self.doc.fork_at(heads).unwrap();
+
+        let btext = d.get(automerge::ROOT, "btext").unwrap().unwrap().1;
+        Ok(Self { doc: d, btext })
     }
 }

@@ -1,15 +1,35 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{any::Any, cell::RefCell, fmt, rc::Rc};
 
-pub trait Crdt {
+#[derive(Debug)]
+pub enum CrdtLib {
+    Automerge,
+    Yrs,
+}
+
+impl fmt::Display for CrdtLib {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = match self {
+            CrdtLib::Automerge => "Automerge",
+            CrdtLib::Yrs => "Yjs",
+        };
+        write!(f, "{}", name)
+    }
+}
+
+pub trait Crdt: Any {
     fn new(&self) -> Rc<RefCell<dyn Crdt>>;
 
     fn load(&self, data: Vec<u8>) -> Rc<RefCell<dyn Crdt>>;
 
-    fn name(&self) -> &str;
+    fn crdt_lib(&self) -> CrdtLib;
+
+    fn name(&self) -> String {
+        self.crdt_lib().to_string()
+    }
 
     fn encoded_state(&mut self) -> Vec<u8>;
 
-    fn apply_update(&mut self, update: Vec<u8>);
+    fn apply_update(&mut self, update: &[u8]);
 
     fn insert_text(&mut self, index: usize, text: &str);
 

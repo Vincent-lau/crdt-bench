@@ -3,17 +3,11 @@ use std::hint::black_box;
 
 use crdt_bench::bam::BenchAM;
 use crdt_bench::byrs::BenchYrs;
-use crdt_bench::crdt::Crdt;
+use crdt_bench::crdt::{Crdt, CrdtLib};
 
 #[cfg(feature = "dhat-heap")]
 #[global_allocator]
 static ALLOC: dhat::Alloc = dhat::Alloc;
-
-#[derive(Debug)]
-enum CrdtLib {
-    Automerge,
-    Yrs,
-}
 
 fn bench_mem(lib: CrdtLib) {
     let file_to_load = match lib {

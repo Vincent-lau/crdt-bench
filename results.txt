@@ -1,3 +1,52 @@
+N = 100 VERS = 100
+
+Gnuplot not found, using plotters backend
+Version control/Automerge
+                        time:   [11.814 ms 11.902 ms 12.001 ms]
+                        change: [−15.869% −15.360% −14.879%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Version control/Yrs     time:   [9.8023 ms 9.8617 ms 9.9235 ms]
+                        change: [−72.109% −71.938% −71.741%] (p = 0.00 < 0.05)
+                        Performance has improved.
+
+
+
+N = 10 VERS = 1000
+Version control/Automerge
+                        time:   [13.983 ms 14.044 ms 14.107 ms]
+                        change: [−64.979% −64.331% −63.648%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 1 outliers among 20 measurements (5.00%)
+  1 (5.00%) high mild
+Benchmarking Version control/Yrs: Warming up for 3.0000 s
+Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 7.4s, enable flat sampling, or reduce sample count to 10.
+Version control/Yrs     time:   [34.868 ms 35.024 ms 35.212 ms]
+                        change: [−98.436% −98.423% −98.408%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 2 outliers among 20 measurements (10.00%)
+  2 (10.00%) high mild
+
+
+
+
+N = 1 VERS = 10000
+Benchmarking Version control/Automerge: Warming up for 3.0000 s
+Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 8.1s, enable flat sampling, or reduce sample count to 10.
+Version control/Automerge
+                        time:   [39.115 ms 39.930 ms 40.666 ms]
+                        change: [+178.75% +185.10% +190.23%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Benchmarking Version control/Yrs: Warming up for 3.0000 s
+Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 44.8s, or reduce sample count to 10.
+Version control/Yrs     time:   [2.1995 s 2.2185 s 2.2349 s]
+                        change: [+6188.2% +6270.7% +6352.3%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 1 outliers among 20 measurements (5.00%)
+  1 (5.00%) low severe
+
+
+
+
 20/1
 
 
@@ -23,28 +72,22 @@ Loading doc/load/Automerge2
                         time:   [6.6437 ms 6.6877 ms 6.7416 ms]
                         change: [+189.33% +190.95% +192.77%] (p = 0.00 < 0.05)
                         Performance has regressed.
-Benchmarking Loading doc/load/Yrs: Warming up for 3.0000 s
-
 Loading doc/load/Automerge
                         time:   [2.2934 ms 2.3014 ms 2.3089 ms]
                         change: [+4.9170% +5.7495% +6.4907%] (p = 0.00 < 0.05)
                         Performance has regressed.
-Benchmarking Loading doc/load/Yrs: Warming up for 3.0000 s
-Warning: Unable to complete 30 samples in 5.0s. You may wish to increase target time to 6.4s, enable flat sampling, or reduce sample count to 10.
 Loading doc/load/Yrs    time:   [4.5849 µs 4.6729 µs 4.7978 µs]
                         change: [+4.2215% +7.4993% +11.113%] (p = 0.00 < 0.05)
                         Performance has regressed.
 
 
-Insert characters one by one/Automerge
+Insert characters one by one/Automerge2
                         time:   [11.982 ms 13.148 ms 14.933 ms]
                         change: [−85.064% −83.687% −81.864%] (p = 0.00 < 0.05)
 Insert characters one by one/Automerge
                         time:   [77.743 ms 78.278 ms 78.662 ms]
                         change: [−0.2993% +0.3107% +0.9051%] (p = 0.37 > 0.05)
                         No change in performance detected.
-Found 2 outliers among 10 measurements (20.00%)
-  2 (20.00%) high mild
 Insert characters one by one/Yrs
                         time:   [13.524 ms 13.608 ms 13.753 ms]
                         change: [+3.3057% +4.1263% +4.9042%] (p = 0.00 < 0.05)

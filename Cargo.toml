@@ -23,5 +23,9 @@ harness = false
 name = "mem"
 harness = false
 
+[[bench]]
+name = "version"
+harness = false
+
 [features]
-dhat-heap = []    # if you are doing heap profiling
+dhat-heap = [] # if you are doing heap profiling

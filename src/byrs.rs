@@ -1,8 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
-use yrs::{Doc, GetString, ReadTxn, StateVector, Text, Transact, Update, updates::decoder::Decode};
+use yrs::{
+    Doc, GetString, ReadTxn, StateVector, Subscription, Text, Transact, Transaction, TransactionAcqError, TransactionMut, Update, UpdateEvent, updates::{decoder::Decode, encoder::Encode}
+};
 
-use crate::crdt::Crdt;
+use crate::crdt::{Crdt, CrdtLib};
 
 pub struct BenchYrs {
     doc: Doc,
@@ -27,20 +29,16 @@ impl Crdt for BenchYrs {
         Rc::new(RefCell::new(BenchYrs { doc }))
     }
 
-    fn name(&self) -> &str {
-        "Yrs"
-    }
-
     fn encoded_state(&mut self) -> Vec<u8> {
         self.doc
             .transact_mut()
             .encode_state_as_update_v1(&StateVector::default())
     }
 
-    fn apply_update(&mut self, update: Vec<u8>) {
+    fn apply_update(&mut self, update: &[u8]) {
         self.doc
             .transact_mut()
-            .apply_update(Update::decode_v1(&update).expect("decode data fine"))
+            .apply_update(Update::decode_v1(update).expect("decode data fine"))
             .unwrap();
     }
 
@@ -66,4 +64,39 @@ impl Crdt for BenchYrs {
             .get_or_insert_text("text")
             .get_string(&self.doc.transact())
     }
+
+    fn crdt_lib(&self) -> crate::crdt::CrdtLib {
+        CrdtLib::Yrs
+    }
+}
+
+impl BenchYrs {
+    pub fn observe_update_v1<F>(&self, f: F) -> Result<Subscription, TransactionAcqError>
+    where
+        F: Fn(&TransactionMut<'_>, &UpdateEvent) + 'static,
+    {
+        self.doc.observe_update_v1(f)
+    }
+
+    pub fn checkpoint(&self) -> (Vec<u8>, Vec<u8>) {
+        let txn = self.doc.transact();
+        (
+            txn.state_vector().encode_v1(),
+            txn.encode_state_as_update_v1(&StateVector::default()),
+        )
+    }
+
+
+    pub fn transact(&self) -> Transaction<'_> {
+        self.doc.transact()
+    }
+
+    pub fn encode_state_as_update_v1_from_start(&self) -> Vec<u8> {
+        self.doc.transact().encode_state_as_update_v1(&StateVector::default())
+    }
+
+    pub fn get_changes(&self, state_vector: &StateVector) -> Vec<u8> {
+        self.doc.transact().encode_diff_v1(state_vector)
+    }
+
 }

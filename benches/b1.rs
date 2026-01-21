@@ -104,7 +104,7 @@ fn bench_1b1_apply_time(c: &mut Criterion) {
                 },
                 |(doc1, doc2, updates)| {
                     for update in updates {
-                        doc2.borrow_mut().apply_update(update);
+                        doc2.borrow_mut().apply_update(&update);
                     }
                     debug_assert_eq!(doc1.borrow().text(), doc2.borrow().text());
                 },
