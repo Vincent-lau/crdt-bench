@@ -1,0 +1,206 @@
+20/1
+
+
+memory profiling for Yrs
+dhat: Total:     124,226 bytes in 31 blocks
+dhat: At t-gmax: 123,698 bytes in 24 blocks
+dhat: At t-end:  1,200 bytes in 3 blocks
+dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_view.html
+
+memory profiling for Automerge
+dhat: Total:     6,327,490 bytes in 522 blocks
+dhat: At t-gmax: 5,612,659 bytes in 219 blocks
+dhat: At t-end:  1,024 bytes in 1 blocks
+
+memory profiling for Automerge2
+dhat: Total:     103,320,802 bytes in 88,751 blocks
+dhat: At t-gmax: 29,724,089 bytes in 11,730 blocks
+dhat: At t-end:  1,024 bytes in 1 blocks
+dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_view.html
+
+
+Loading doc/load/Automerge2
+                        time:   [6.6437 ms 6.6877 ms 6.7416 ms]
+                        change: [+189.33% +190.95% +192.77%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Benchmarking Loading doc/load/Yrs: Warming up for 3.0000 s
+
+Loading doc/load/Automerge
+                        time:   [2.2934 ms 2.3014 ms 2.3089 ms]
+                        change: [+4.9170% +5.7495% +6.4907%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Benchmarking Loading doc/load/Yrs: Warming up for 3.0000 s
+Warning: Unable to complete 30 samples in 5.0s. You may wish to increase target time to 6.4s, enable flat sampling, or reduce sample count to 10.
+Loading doc/load/Yrs    time:   [4.5849 µs 4.6729 µs 4.7978 µs]
+                        change: [+4.2215% +7.4993% +11.113%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+
+Insert characters one by one/Automerge
+                        time:   [11.982 ms 13.148 ms 14.933 ms]
+                        change: [−85.064% −83.687% −81.864%] (p = 0.00 < 0.05)
+Insert characters one by one/Automerge
+                        time:   [77.743 ms 78.278 ms 78.662 ms]
+                        change: [−0.2993% +0.3107% +0.9051%] (p = 0.37 > 0.05)
+                        No change in performance detected.
+Found 2 outliers among 10 measurements (20.00%)
+  2 (20.00%) high mild
+Insert characters one by one/Yrs
+                        time:   [13.524 ms 13.608 ms 13.753 ms]
+                        change: [+3.3057% +4.1263% +4.9042%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+Apply inserted chars one by one/Automerge2
+                        time:   [27.084 ms 27.148 ms 27.214 ms]
+                        change: [−99.490% −99.489% −99.487%] (p = 0.00 < 0.05)
+Apply inserted chars one by one/Automerge
+                        time:   [5.2950 s 5.3086 s 5.3241 s]
+                        change: [+0.6656% +1.2043% +1.7986%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high mild
+Apply inserted chars one by one/Yrs
+                        time:   [12.753 ms 12.789 ms 12.832 ms]
+                        change: [−38.135% −32.209% −23.937%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high mild
+
+Append one big text/Automerge2
+                        time:   [11.683 ms 12.832 ms 14.104 ms]
+                        change: [+490.71% +547.55% +613.43%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Append one big text/Automerge
+                        time:   [1.8713 ms 1.9100 ms 1.9282 ms]
+                        change: [−4.5638% −2.4922% −0.3598%] (p = 0.05 > 0.05)
+                        No change in performance detected.
+Append one big text/Yrs time:   [4.0505 µs 4.1351 µs 4.1949 µs]
+                        change: [−3.0480% −0.2124% +2.8266%] (p = 0.89 > 0.05)
+                        No change in performance detected.
+
+Apply one big change/Automerge2
+                        time:   [8.5056 ms 8.5283 ms 8.5634 ms]
+                        change: [+88.517% +91.353% +93.458%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Apply one big change/Automerge
+                        time:   [4.4049 ms 4.4409 ms 4.4844 ms]
+                        change: [+0.7211% +2.0872% +3.7490%] (p = 0.01 < 0.05)
+                        Change within noise threshold.
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high severe
+Apply one big change/Yrs
+                        time:   [5.3347 µs 5.6431 µs 5.7962 µs]
+                        change: [−12.590% −3.4659% +5.6927%] (p = 0.52 > 0.05)
+                        No change in performance detected.
+
+
+-----
+
+
+
+
+Apply inserted chars 1 by 1/Automerge
+                        time:   [1.9576 s 1.9744 s 1.9910 s]
+                        change: [−0.7068% +0.3354% +1.3118%] (p = 0.54 > 0.05)
+                        No change in performance detected.
+Apply inserted chars 1 by 1/Yrs
+                        time:   [12.557 ms 12.591 ms 12.644 ms]
+                        change: [−3.0599% −1.9013% −0.8387%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high severe
+
+
+
+ cargo bench --bench b1
+    Finished `bench` profile [optimized] target(s) in 0.06s
+     Running benches/b1.rs (target/release/deps/b1-3a273ea151c1e1b6)
+Gnuplot not found, using plotters backend
+Benchmarking Loading doc/load/Automerge: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 12.1s, or reduce sample count to 40.
+Loading doc/load/Automerge
+                        time:   [182.37 ms 196.23 ms 210.03 ms]
+                        change: [−9.6661% −0.5925% +9.3413%] (p = 0.91 > 0.05)
+                        No change in performance detected.
+Loading doc/load/Yrs    time:   [1.4741 ms 1.5602 ms 1.6464 ms]
+                        change: [−4.3154% +3.0088% +11.411%] (p = 0.44 > 0.05)
+                        No change in performance detected.
+
+
+
+
+b1 automerge3
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/load.rs (target/release/deps/load-16e22d98afc6e060)
+Gnuplot not found, using plotters backend
+Loading doc/loading without checking
+                        time:   [10.869 ms 10.960 ms 11.058 ms]
+                        change: [−97.851% −97.830% −97.809%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Loading doc/loading with checking
+                        time:   [11.242 ms 11.343 ms 11.501 ms]
+                        change: [−97.682% −97.661% −97.638%] (p = 0.00 < 0.05)
+                        Performance has improved.
+
+
+
+automerge 3
+Benchmarking Loading doc/loading without checking: Warming up for 3.0000 s
+Warning: Unable to complete 10 samples in 5.0s. You may wish to increase target time to 5.2s.
+Loading doc/loading without checking
+                        time:   [501.09 ms 504.05 ms 507.35 ms]
+                        change: [−78.364% −78.201% −78.034%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Loading doc/loading with checking
+                        time:   [484.52 ms 486.60 ms 489.03 ms]
+                        change: [−78.860% −78.709% −78.558%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 2 outliers among 10 measurements (20.00%)
+  1 (10.00%) low mild
+  1 (10.00%) high severe
+
+
+
+
+
+automerg 2
+moby-dick
+Benchmarking Loading doc/loading without checking: Warming up for 3.0000 s
+Warning: Unable to complete 10 samples in 5.0s. You may wish to increase target time to 23.2s.
+Benchmarking Loading doc/loading without checking: Collecting 10 samples in estimated 23.244 s (10 
+Loading doc/loading without checking
+                        time:   [2.2537 s 2.2675 s 2.2814 s]
+                        change: [−0.3190% +0.3063% +0.9212%] (p = 0.40 > 0.05)
+                        No change in performance detected.
+Benchmarking Loading doc/loading with checking: Warming up for 3.0000 s
+Warning: Unable to complete 10 samples in 5.0s. You may wish to increase target time to 22.2s.
+Benchmarking Loading doc/loading with checking: Collecting 10 samples in estimated 22.239 s (10 ite
+Loading doc/loading with checking
+                        time:   [2.2147 s 2.2268 s 2.2401 s]
+                        change: [−2.4015% −1.8032% −1.1846%] (p = 0.00 < 0.05)
+                        Performance has improved.
+
+automerge 2
+B1
+Loading doc/loading without checking
+                        time:   [24.580 ms 24.672 ms 24.795 ms]
+Found 11 outliers among 100 measurements (11.00%)
+  2 (2.00%) low mild
+  4 (4.00%) high mild
+  5 (5.00%) high severe
+Loading doc/loading with checking
+                        time:   [24.515 ms 24.611 ms 24.726 ms]
+Found 8 outliers among 100 measurements (8.00%)
+  4 (4.00%) high mild
+  4 (4.00%) high severe
+
+
+
+
+Append 2000 characters
+serialising to bytes compressed 1699, uncompreassed 2178
+
+6000 characters
+serialising to bytes compressed 4705, uncompreassed 6178
+
