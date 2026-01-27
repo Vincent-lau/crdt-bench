@@ -21,10 +21,10 @@ impl Crdt for BenchYrs {
         Rc::new(RefCell::new(BenchYrs::default()))
     }
 
-    fn load(&self, data: Vec<u8>) -> Rc<RefCell<dyn Crdt>> {
+    fn load(&self, data: &[u8]) -> Rc<RefCell<dyn Crdt>> {
         let doc = Doc::new();
         doc.transact_mut()
-            .apply_update(Update::decode_v1(&data).expect("decode data fine"))
+            .apply_update(Update::decode_v1(data).expect("decode data fine"))
             .unwrap();
         Rc::new(RefCell::new(BenchYrs { doc }))
     }

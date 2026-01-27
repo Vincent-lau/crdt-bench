@@ -13,8 +13,8 @@ use yrs::{
     updates::{decoder::Decode, encoder::Encode},
 };
 
-static N: usize = 1;
-static NUM_VERS: usize = 10000;
+static N: usize = 10;
+static NUM_VERS: usize = 1000;
 static VER_TO_GO: usize = 19;
 static SAMPLE_SIZE: usize = 20;
 
@@ -87,11 +87,13 @@ fn edit_and_go_back(c: &mut Criterion) {
                 |(doc, texts)| {
                     let (updates, _sub) = track_version(doc.clone());
                     let mut checkpoint = None;
+                    let mut ofs: usize = 0;
                     for (i, t) in texts.iter().enumerate() {
-                        bench_utils::insert_1b1(&t, doc.clone());
+                        bench_utils::insert_1b1(&t, ofs, doc.clone());
                         if i == VER_TO_GO {
                             checkpoint = checkpoint_am(doc.clone());
                         }
+                        ofs += t.len();
                     }
                     revert_version(doc.clone(), updates, checkpoint);
                 },
@@ -112,12 +114,15 @@ fn edit_and_diff(c: &mut Criterion) {
     }
 
     let am = |(doc, texts): (Rc<RefCell<BenchAM>>, Vec<String>)| {
+        let mut ofs: usize = 0;
         let mut checkpoints = Vec::new();
         for t in &texts {
-            bench_utils::insert_1b1(t, doc.clone());
+            bench_utils::insert_1b1(t, ofs, doc.clone());
             checkpoints.push(doc.borrow_mut().get_heads());
+            ofs += t.len();
         }
 
+        debug_assert_eq!(doc.borrow().text().len(), ofs);
         let mut doc = doc.borrow_mut();
         let heads = doc.get_heads();
         for v in ver_to_diff() {
@@ -131,8 +136,10 @@ fn edit_and_diff(c: &mut Criterion) {
     // need to store all states.
     let yrs = |(doc, texts): (Rc<RefCell<BenchYrs>>, Vec<String>)| {
         let mut checkpoints = Vec::new();
+        let mut ofs = 0;
         for t in &texts {
-            bench_utils::insert_1b1(t, doc.clone());
+            bench_utils::insert_1b1(t, ofs, doc.clone());
+            ofs += t.len();
             let doc = doc.borrow();
             let txn = doc.transact();
             checkpoints.push((
@@ -140,6 +147,7 @@ fn edit_and_diff(c: &mut Criterion) {
                 txn.encode_state_as_update_v1(&yrs::StateVector::default()),
             ))
         }
+        debug_assert_eq!(doc.borrow().text().len(), ofs);
 
         for v in ver_to_diff() {
             let sv = yrs::StateVector::decode_v1(&checkpoints[v].0).unwrap();

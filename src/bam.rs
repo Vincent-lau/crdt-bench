@@ -35,8 +35,8 @@ impl Crdt for BenchAM {
         Rc::new(RefCell::new(BenchAM::default()))
     }
 
-    fn load(&self, data: Vec<u8>) -> Rc<RefCell<dyn Crdt>> {
-        let doc = AutoCommit::load(&data).expect("loading doc success");
+    fn load(&self, data: &[u8]) -> Rc<RefCell<dyn Crdt>> {
+        let doc = AutoCommit::load(data).expect("loading doc success");
         let btext = doc.get(automerge::ROOT, "btext").unwrap().unwrap().1;
         Rc::new(RefCell::new(Self { doc, btext }))
     }

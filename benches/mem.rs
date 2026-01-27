@@ -21,7 +21,7 @@ fn bench_mem(lib: CrdtLib) {
         CrdtLib::Yrs => Box::new(BenchYrs::default()),
     };
 
-    let doc = doc.load(data);
+    let doc = doc.load(&data);
     black_box(doc);
 }
 

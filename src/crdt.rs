@@ -19,7 +19,7 @@ impl fmt::Display for CrdtLib {
 pub trait Crdt: Any {
     fn new(&self) -> Rc<RefCell<dyn Crdt>>;
 
-    fn load(&self, data: Vec<u8>) -> Rc<RefCell<dyn Crdt>>;
+    fn load(&self, data: &[u8]) -> Rc<RefCell<dyn Crdt>>;
 
     fn crdt_lib(&self) -> CrdtLib;
 

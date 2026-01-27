@@ -2,43 +2,19 @@ use criterion::{BatchSize, BenchmarkId, Criterion, criterion_group, criterion_ma
 use std::{cell::RefCell, rc::Rc};
 
 use bench_utils::generate_random_string;
-use crdt_bench::{bam::BenchAM, bench_utils, byrs::BenchYrs, crdt::Crdt};
+use crdt_bench::{
+    bam::BenchAM,
+    bench_utils::{self, insert_1b1, insert_1b1_with_updates, insert1big, insert1big_with_update},
+    byrs::BenchYrs,
+    crdt::Crdt,
+};
 
 static SAMPLE_SIZE: usize = 30;
 
 static N: usize = 60000;
 
-fn insert1b1(text: String, doc: Rc<RefCell<dyn Crdt>>) {
-    let mut doc = doc.borrow_mut();
-    for (i, c) in text.chars().enumerate() {
-        doc.insert_text(i, &c.to_string());
-    }
-}
-
-fn insert1big(text: String, doc: Rc<RefCell<dyn Crdt>>) {
-    let mut doc = doc.borrow_mut();
-    doc.insert_text(0, &text);
-}
-
-fn insert1big_with_update(text: String, doc: Rc<RefCell<dyn Crdt>>) -> Vec<u8> {
-    let mut doc = doc.borrow_mut();
-    doc.insert_text_update(0, &text)
-}
-
-fn insert1b1_with_updates(doc: Rc<RefCell<dyn Crdt>>) -> Vec<Vec<u8>> {
-    // fine to generate text here since we won't use this for benchmark anyway
-    let text = generate_random_string(N);
-    let mut doc = doc.borrow_mut();
-    let mut updates = Vec::new();
-    for (i, c) in text.chars().enumerate() {
-        let update = doc.insert_text_update(i, &c.to_string());
-        updates.push(update);
-    }
-    updates
-}
-
 fn load(doc: Rc<RefCell<dyn Crdt>>, data: Vec<u8>) {
-    let doc2 = doc.borrow().load(data);
+    let doc2 = doc.borrow().load(&data);
     debug_assert_eq!(doc.borrow().text(), doc2.borrow().text());
 }
 
@@ -57,7 +33,7 @@ fn bench_loading(c: &mut Criterion) {
                 || {
                     let doc = { doc.borrow().new() };
                     let text = generate_random_string(N);
-                    insert1b1(text, doc.clone());
+                    insert_1b1(&text, 0, doc.clone());
                     let doc = doc.clone();
                     doc.borrow_mut().encoded_state()
                 },
@@ -79,7 +55,7 @@ fn bench_1b1_insert_time(c: &mut Criterion) {
         group.bench_function(bench_name, |b| {
             b.iter_batched(
                 || generate_random_string(N),
-                |text| insert1b1(text, doc.clone()),
+                |text| insert_1b1(&text, 0, doc.clone()),
                 BatchSize::SmallInput,
             );
         });
@@ -99,8 +75,13 @@ fn bench_1b1_apply_time(c: &mut Criterion) {
                 || {
                     let doc1 = doc1.borrow().new();
                     let state = doc1.borrow_mut().encoded_state();
-                    let doc2 = { doc1.borrow().load(state) };
-                    (doc1.clone(), doc2, insert1b1_with_updates(doc1.clone()))
+                    let doc2 = { doc1.borrow().load(&state) };
+                    let t = generate_random_string(N);
+                    (
+                        doc1.clone(),
+                        doc2,
+                        insert_1b1_with_updates(&t, 0, doc1.clone()),
+                    )
                 },
                 |(doc1, doc2, updates)| {
                     for update in updates {
@@ -126,7 +107,7 @@ fn bench_bulk_insert_time(c: &mut Criterion) {
             b.iter_batched(
                 || generate_random_string(N),
                 |text| {
-                    insert1big(text, doc.clone());
+                    insert1big(&text, 0, doc.clone());
                 },
                 BatchSize::SmallInput,
             );
@@ -147,11 +128,12 @@ fn bench_bulk_apply_time(c: &mut Criterion) {
                 || {
                     let doc1 = doc1.borrow().new();
                     let state = doc1.borrow_mut().encoded_state();
-                    let doc2 = { doc1.borrow().load(state) };
+                    let doc2 = { doc1.borrow().load(&state) };
+                    let t = generate_random_string(N);
                     (
                         doc1.clone(),
                         doc2,
-                        insert1big_with_update(generate_random_string(N), doc1.clone()),
+                        insert1big_with_update(&t, 0, doc1.clone()),
                     )
                 },
                 |(doc1, doc2, update)| {
@@ -170,8 +152,8 @@ criterion_group!(
     update_time,
     bench_1b1_insert_time,
     bench_1b1_apply_time,
-    // bench_bulk_insert_time,
-    // bench_bulk_apply_time
+    bench_bulk_insert_time,
+    bench_bulk_apply_time
 );
 
 criterion_group!(load_time, bench_loading);
