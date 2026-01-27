@@ -1,48 +1,54 @@
+4 clients making 600 character changes concurrently/Automerge
+                        time:   [15.453 s 15.497 s 15.544 s]
+4 clients making 600 character changes concurrently/Yjs
+                        time:   [10.717 ms 10.822 ms 10.895 ms]
+
+
 N = 100 VERS = 100
-
-Gnuplot not found, using plotters backend
+Version control/Automerge2
+                        time:   [43.832 ms 44.097 ms 44.350 ms]
+                        change: [−8.7822% −8.2068% −7.6746%] (p = 0.00 < 0.05)
+                        Performance has improved.
 Version control/Automerge
-                        time:   [11.814 ms 11.902 ms 12.001 ms]
-                        change: [−15.869% −15.360% −14.879%] (p = 0.00 < 0.05)
-                        Performance has improved.
-Version control/Yrs     time:   [9.8023 ms 9.8617 ms 9.9235 ms]
-                        change: [−72.109% −71.938% −71.741%] (p = 0.00 < 0.05)
-                        Performance has improved.
-
+                        time:   [160.17 ms 160.76 ms 161.36 ms]
+Version control/Yrs     time:   [9.7567 ms 9.8108 ms 9.8634 ms]
 
 
 N = 10 VERS = 1000
+Gnuplot not found, using plotters backend
+Version control/Automerge2
+                        time:   [47.865 ms 48.048 ms 48.255 ms]
+                        change: [−34.197% −33.806% −33.432%] (p = 0.00 < 0.05)
+                        Performance has improved.
 Version control/Automerge
-                        time:   [13.983 ms 14.044 ms 14.107 ms]
-                        change: [−64.979% −64.331% −63.648%] (p = 0.00 < 0.05)
-                        Performance has improved.
-Found 1 outliers among 20 measurements (5.00%)
-  1 (5.00%) high mild
+                        time:   [175.99 ms 176.56 ms 177.13 ms]
+                        change: [+9.2766% +9.8314% +10.360%] (p = 0.00 < 0.05)
 Benchmarking Version control/Yrs: Warming up for 3.0000 s
-Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 7.4s, enable flat sampling, or reduce sample count to 10.
-Version control/Yrs     time:   [34.868 ms 35.024 ms 35.212 ms]
-                        change: [−98.436% −98.423% −98.408%] (p = 0.00 < 0.05)
+Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 6.6s, enable flat sampling, or reduce sample count to 10.
+Version control/Yrs     time:   [31.549 ms 31.842 ms 32.054 ms]
+                        change: [−98.531% −98.518% −98.504%] (p = 0.00 < 0.05)
                         Performance has improved.
-Found 2 outliers among 20 measurements (10.00%)
-  2 (10.00%) high mild
-
 
 
 
 N = 1 VERS = 10000
-Benchmarking Version control/Automerge: Warming up for 3.0000 s
-Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 8.1s, enable flat sampling, or reduce sample count to 10.
-Version control/Automerge
-                        time:   [39.115 ms 39.930 ms 40.666 ms]
-                        change: [+178.75% +185.10% +190.23%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Benchmarking Version control/Yrs: Warming up for 3.0000 s
-Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 44.8s, or reduce sample count to 10.
-Version control/Yrs     time:   [2.1995 s 2.2185 s 2.2349 s]
-                        change: [+6188.2% +6270.7% +6352.3%] (p = 0.00 < 0.05)
+Version control/Automerge2
+                        time:   [72.319 ms 72.587 ms 72.925 ms]
+                        change: [+28.014% +30.552% +32.976%] (p = 0.00 < 0.05)
                         Performance has regressed.
 Found 1 outliers among 20 measurements (5.00%)
-  1 (5.00%) low severe
+  1 (5.00%) high severe
+Version control/Automerge
+                      time:   [198.04 ms 198.79 ms 199.56 ms]
+                      change: [+12.014% +12.589% +13.134%] (p = 0.00 < 0.05)
+                      Performance has regressed.
+Benchmarking Version control/Yrs: Warming up for 3.0000 s
+Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 43.1s, or reduce sample count to 10.
+Version control/Yrs     time:   [2.1098 s 2.1242 s 2.1372 s]
+                        change: [−0.3367% +0.5599% +1.4245%] (p = 0.22 > 0.05)
+                        No change in performance detected.
+Found 1 outliers among 20 measurements (5.00%)
+  1 (5.00%) low mild
 
 
 
@@ -51,34 +57,79 @@ Found 1 outliers among 20 measurements (5.00%)
 
 
 memory profiling for Yrs
-dhat: Total:     124,226 bytes in 31 blocks
-dhat: At t-gmax: 123,698 bytes in 24 blocks
+dhat: Total:     16,225 bytes in 31 blocks
+dhat: At t-gmax: 15,697 bytes in 24 blocks
 dhat: At t-end:  1,200 bytes in 3 blocks
 dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_view.html
 
-memory profiling for Automerge
-dhat: Total:     6,327,490 bytes in 522 blocks
-dhat: At t-gmax: 5,612,659 bytes in 219 blocks
+memory profiling for Automerge3
+dhat: Total:     744,003 bytes in 530 blocks
+dhat: At t-gmax: 576,579 bytes in 219 blocks
 dhat: At t-end:  1,024 bytes in 1 blocks
+dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_view.html
 
-memory profiling for Automerge2
-dhat: Total:     103,320,802 bytes in 88,751 blocks
-dhat: At t-gmax: 29,724,089 bytes in 11,730 blocks
+memory profiling for Automerge
+dhat: Total:     8,171,615 bytes in 8,889 blocks
+dhat: At t-gmax: 2,539,957 bytes in 1,250 blocks
 dhat: At t-end:  1,024 bytes in 1 blocks
 dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_view.html
 
 
-Loading doc/load/Automerge2
-                        time:   [6.6437 ms 6.6877 ms 6.7416 ms]
-                        change: [+189.33% +190.95% +192.77%] (p = 0.00 < 0.05)
+
+N=600000
+600000
+Loading doc/loading without checking/Automerge
+                        time:   [234.23 ms 235.03 ms 235.98 ms]
+                        change: [−1.8203% −0.9724% −0.0487%] (p = 0.06 > 0.05)
+                        No change in performance detected.
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high mild
+Loading doc/loading without checking/Yjs
+                        time:   [338.15 µs 339.63 µs 342.35 µs]
+Loading doc/loading without checking/Automerge2
+                        time:   [1.0678 s 1.0735 s 1.0795 s]
+                        change: [+0.3744% +1.4046% +2.5410%] (p = 0.02 < 0.05)
+                        Change within noise threshold.
+N=60000
+turn off change graph
+Loading doc/loading doc/Automerge
+                        time:   [199.36 µs 199.88 µs 200.51 µs]
+Loading doc/loading doc/Yjs
+                        time:   [40.415 µs 40.907 µs 41.660 µs]
+
+
+
+Loading doc/loading without checking/Automerge
+                        time:   [20.376 ms 20.443 ms 20.589 ms]
+Loading doc/loading without checking/Automerge
+                        time:   [77.990 ms 78.189 ms 78.423 ms]
+                        change: [+1055.2% +1060.7% +1066.0%] (p = 0.00 < 0.05)
+Loading doc/loading without checking/Yjs
+                        time:   [39.792 µs 39.951 µs 40.147 µs]
+                        change: [+286.79% +289.98% +293.27%] (p = 0.00 < 0.05)
                         Performance has regressed.
-Loading doc/load/Automerge
-                        time:   [2.2934 ms 2.3014 ms 2.3089 ms]
-                        change: [+4.9170% +5.7495% +6.4907%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Loading doc/load/Yrs    time:   [4.5849 µs 4.6729 µs 4.7978 µs]
-                        change: [+4.2215% +7.4993% +11.113%] (p = 0.00 < 0.05)
-                        Performance has regressed.
+
+
+
+N=6000
+turn off change graph
+Loading doc/loading doc/Automerge
+                        time:   [35.996 µs 36.260 µs 36.464 µs]
+Loading doc/loading doc/Yjs
+                        time:   [10.055 µs 10.100 µs 10.145 µs]
+
+
+
+
+
+Loading doc/loading without checking/Automerge
+                        time:   [2.0868 ms 2.0969 ms 2.1158 ms]
+Loading doc/loading without checking/Automerge2
+                        time:   [6.7188 ms 6.7426 ms 6.7751 ms]
+Loading doc/loading without checking/Yjs
+                        time:   [10.506 µs 10.539 µs 10.581 µs]
+
+
 
 
 Insert characters one by one/Automerge2
@@ -100,8 +151,6 @@ Apply inserted chars one by one/Automerge
                         time:   [5.2950 s 5.3086 s 5.3241 s]
                         change: [+0.6656% +1.2043% +1.7986%] (p = 0.00 < 0.05)
                         Change within noise threshold.
-Found 1 outliers among 10 measurements (10.00%)
-  1 (10.00%) high mild
 Apply inserted chars one by one/Yrs
                         time:   [12.753 ms 12.789 ms 12.832 ms]
                         change: [−38.135% −32.209% −23.937%] (p = 0.00 < 0.05)
@@ -155,12 +204,11 @@ Found 1 outliers among 10 measurements (10.00%)
 
 
 
- cargo bench --bench b1
-    Finished `bench` profile [optimized] target(s) in 0.06s
-     Running benches/b1.rs (target/release/deps/b1-3a273ea151c1e1b6)
-Gnuplot not found, using plotters backend
-Benchmarking Loading doc/load/Automerge: Warming up for 3.0000 s
 Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 12.1s, or reduce sample count to 40.
+
+
+
+6000
 Loading doc/load/Automerge
                         time:   [182.37 ms 196.23 ms 210.03 ms]
                         change: [−9.6661% −0.5925% +9.3413%] (p = 0.91 > 0.05)
@@ -247,3 +295,7 @@ serialising to bytes compressed 1699, uncompreassed 2178
 6000 characters
 serialising to bytes compressed 4705, uncompreassed 6178
 
+
+
+
+load_changes{text_encoding=UnicodeCodePoint current=ChangeGraph { edges: [], hashes: [ChangeHash("dc5c6d7d319029b25537696312df4633f66ced6abdc2214dcf598adb909ddd96")], actors: [ActorIdx(0)], parents: [None], seq: [1], max_ops: [60001], max_op: 60001, num_ops: ColumnData { len: 1, slabs: SpanTree { root_node: Some(TreeNode { elements: [Slab { data: [127, 225, 212, 3], len: 1, acc: Acc(60001), min: Agg(Some(60001)), max: Agg(Some(60001)), abs: 0 }], children: [], length: 1, weight: SlabWeight { pos: 1, acc: Acc(60001), min: Agg(Some(60001)), max: Agg(Some(60001)) } }) }, debug: [Some(60001)], counter: 0, _phantom: PhantomData<hexane::rle::RleCursor<64, u64>> }, timestamps: ColumnData { len: 1, slabs: SpanTree { root_node: Some(TreeNode { elements: [Slab { data: [127, 0], len: 1, acc: Acc(0), min: Agg(None), max: Agg(None), abs: 0 }], children: [], length: 1, weight: SlabWeight { pos: 1, acc: Acc(0), min: Agg(None), max: Agg(None) } }) }, debug: [Some(0)], counter: 0, _phantom: PhantomData<hexane::delta::DeltaCursorInternal<64>> }, messages: ColumnData { len: 1, slabs: SpanTree { root_node: Some(TreeNode { elements: [Slab { data: [0, 1], len: 1, acc: Acc(0), min: Agg(None), max: Agg(None), abs: 0 }], children: [], length: 1, weight: SlabWeight { pos: 1, acc: Acc(0), min: Agg(None), max: Agg(None) } }) }, debug: [None], counter: 0, _phantom: PhantomData<hexane::rle::RleCursor<128, str>> }, extra_bytes_meta: ColumnData { len: 1, slabs: SpanTree { root_node: Some(TreeNode { elements: [Slab { data: [127, 7], len: 1, acc: Acc(0), min: Agg(None), max: Agg(None), abs: 0 }], children: [], length: 1, weight: SlabWeight { pos: 1, acc: Acc(0), min: Agg(None), max: Agg(None) } }) }, debug: [Some(ValueMeta(7))], counter: 0, _phantom: PhantomData<hexane::rle::RleCursor<64, automerge::op_set2::meta::ValueMeta>> }, extra_bytes_raw: [], heads: {ChangeHash("dc5c6d7d319029b25537696312df4633f66ced6abdc2214dcf598adb909ddd96")}, nodes_by_hash: {ChangeHash("dc5c6d7d319029b25537696312df4633f66ced6abdc2214dcf598adb909ddd96"): NodeIdx(0)}, clock_cache: {}, seq_index: [[NodeIdx(0)]] }}:
