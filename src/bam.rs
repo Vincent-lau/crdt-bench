@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use automerge::{
-    AutoCommit, AutomergeError, Change, ChangeHash, ObjId, ReadDoc, transaction::Transactable,
+    AutoCommit, AutomergeError, ChangeHash, ObjId, Patch, ReadDoc, transaction::Transactable
 };
 
 use crate::crdt::{Crdt, CrdtLib};
@@ -76,12 +76,8 @@ impl Crdt for BenchAM {
 }
 
 impl BenchAM {
-    pub fn checkpoint(&mut self) -> Vec<ChangeHash> {
+    pub fn get_heads(&mut self) -> Vec<ChangeHash> {
         self.doc.get_heads()
-    }
-
-    pub fn get_changes(&mut self, have_deps: &[ChangeHash]) -> Vec<&Change> {
-        self.doc.get_changes(have_deps)
     }
 
     pub fn fork_at(&mut self, heads: &[ChangeHash]) -> Result<Self, AutomergeError> {
@@ -89,5 +85,9 @@ impl BenchAM {
 
         let btext = d.get(automerge::ROOT, "btext").unwrap().unwrap().1;
         Ok(Self { doc: d, btext })
+    }
+
+    pub fn diff(&mut self, before: &[ChangeHash], after: &[ChangeHash]) -> Vec<Patch> {
+        self.doc.diff(before, after)
     }
 }

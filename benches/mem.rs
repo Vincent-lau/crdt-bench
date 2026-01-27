@@ -11,8 +11,8 @@ static ALLOC: dhat::Alloc = dhat::Alloc;
 
 fn bench_mem(lib: CrdtLib) {
     let file_to_load = match lib {
-        CrdtLib::Automerge => "./benches/data/b1.am",
-        CrdtLib::Yrs => "./benches/data/b1.yrs",
+        CrdtLib::Automerge => "./benches/data/rnd-6k.am",
+        CrdtLib::Yrs => "./benches/data/rnd-6k.yrs",
     };
 
     let data = fs::read(file_to_load).unwrap();

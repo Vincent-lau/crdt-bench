@@ -13,8 +13,8 @@ use yrs::{
     updates::{decoder::Decode, encoder::Encode},
 };
 
-static N: usize = 100;
-static NUM_VERS: usize = 100;
+static N: usize = 1;
+static NUM_VERS: usize = 10000;
 static VER_TO_GO: usize = 19;
 static SAMPLE_SIZE: usize = 20;
 
@@ -39,7 +39,7 @@ fn track_version(doc: Rc<RefCell<dyn Any>>) -> (Rc<RefCell<Vec<Vec<u8>>>>, Optio
 fn checkpoint_am(doc: Rc<RefCell<dyn Any>>) -> Option<Vec<ChangeHash>> {
     let mut doc = doc.borrow_mut();
     if let Some(doc) = doc.downcast_mut::<BenchAM>() {
-        return Some(doc.checkpoint());
+        return Some(doc.get_heads());
     }
     return None;
 }
@@ -49,7 +49,6 @@ fn revert_version(
     updates: Rc<RefCell<Vec<Vec<u8>>>>,
     checkpoint: Option<Vec<ChangeHash>>,
 ) {
-    // === RECONSTRUCT VERSION N ===
     let mut doc = doc.borrow_mut();
     if let Some(_doc) = doc.downcast_mut::<BenchYrs>() {
         let mut doc2 = BenchYrs::default();
@@ -116,13 +115,13 @@ fn edit_and_diff(c: &mut Criterion) {
         let mut checkpoints = Vec::new();
         for t in &texts {
             bench_utils::insert_1b1(t, doc.clone());
-            checkpoints.push(doc.borrow_mut().checkpoint());
+            checkpoints.push(doc.borrow_mut().get_heads());
         }
 
         let mut doc = doc.borrow_mut();
+        let heads = doc.get_heads();
         for v in ver_to_diff() {
-            let patch = doc.get_changes(&checkpoints[v]);
-            // println!("am patch size {}", patch.len());
+            let patch = doc.diff(&checkpoints[v], &heads);
             assert!(patch.len() > 0);
         }
     };
