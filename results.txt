@@ -1,59 +1,54 @@
+Version control and revert back to previous version
+----
+Make changes 10 character with 10000 versions and revert to previous versions 100/Automerge
+                        time:   [1.1748 s 1.1895 s 1.2017 s]
+Found 2 outliers among 10 measurements (20.00%)
+  2 (20.00%) low severe
+Benchmarking Make changes 10 character with 10000 versions and revert to previous versions 100/Yjs: Collecting 10 samples in estimated 24.811 s (10 iteratio
+Make changes 10 character with 10000 versions and revert to previous versions 100/Yjs
+                        time:   [2.4578 s 2.4690 s 2.4811 s]
+
+Make changes 10 character with 1000 versions and revert to previous versions 100/Automerge
+                        time:   [113.41 ms 113.90 ms 114.44 ms]
+Benchmarking Make changes 10 character with 1000 versions and revert to previous versions 100/Yjs: Collecting 10 samples in estimated 5.3672 s (165 iteratio
+Make changes 10 character with 1000 versions and revert to previous versions 100/Yjs
+                        time:   [31.837 ms 32.093 ms 32.271 ms]
+
+
+Version control and take diff
+---
+
+Version control 1000 versions each have 10 chars/Automerge
+                        time:   [154.92 ms 155.02 ms 155.31 ms]
+                        change: [+2.7429% +3.1284% +3.5602%] (p = 0.00 < 0.05)
+Found 2 outliers among 10 measurements (20.00%)
+  2 (20.00%) high mild
+Version control 1000 versions each have 10 chars/Yrs
+                        time:   [32.615 ms 32.716 ms 32.903 ms]
+Found 2 outliers among 10 measurements (20.00%)
+  1 (10.00%) high mild
+  1 (10.00%) high severe
+Version control 1000 versions each have 10 chars/Yrs + delta tracking
+                        time:   [34.839 ms 34.925 ms 35.052 ms]
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high severe
+Yrs doc size is 10.018 KB snapshots size 8.9875 KB
+am doc size 7.740 KB
+
+Version control 10000 versions each have 1 chars/Automerge
+                        time:   [204.07 ms 204.60 ms 205.12 ms]
+Version control 10000 versions each have 1 chars/Yrs
+                        time:   [33.724 ms 33.843 ms 33.957 ms]
+Yrs doc size is 10.018 KB snapshots size 89.875 KB
+am doc size 7.740 KB
+
+
 4 clients making 600 character changes concurrently/Automerge
                         time:   [15.453 s 15.497 s 15.544 s]
 4 clients making 600 character changes concurrently/Yjs
                         time:   [10.717 ms 10.822 ms 10.895 ms]
 
 
-N = 100 VERS = 100
-Version control/Automerge2
-                        time:   [43.832 ms 44.097 ms 44.350 ms]
-                        change: [−8.7822% −8.2068% −7.6746%] (p = 0.00 < 0.05)
-                        Performance has improved.
-Version control/Automerge
-                        time:   [160.17 ms 160.76 ms 161.36 ms]
-Version control/Yrs     time:   [9.7567 ms 9.8108 ms 9.8634 ms]
-
-
-N = 10 VERS = 1000
-Gnuplot not found, using plotters backend
-Version control/Automerge2
-                        time:   [47.865 ms 48.048 ms 48.255 ms]
-                        change: [−34.197% −33.806% −33.432%] (p = 0.00 < 0.05)
-                        Performance has improved.
-Version control/Automerge
-                        time:   [175.99 ms 176.56 ms 177.13 ms]
-                        change: [+9.2766% +9.8314% +10.360%] (p = 0.00 < 0.05)
-Benchmarking Version control/Yrs: Warming up for 3.0000 s
-Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 6.6s, enable flat sampling, or reduce sample count to 10.
-Version control/Yrs     time:   [31.549 ms 31.842 ms 32.054 ms]
-                        change: [−98.531% −98.518% −98.504%] (p = 0.00 < 0.05)
-                        Performance has improved.
-
-
-
-N = 1 VERS = 10000
-Version control/Automerge2
-                        time:   [72.319 ms 72.587 ms 72.925 ms]
-                        change: [+28.014% +30.552% +32.976%] (p = 0.00 < 0.05)
-                        Performance has regressed.
-Found 1 outliers among 20 measurements (5.00%)
-  1 (5.00%) high severe
-Version control/Automerge
-                      time:   [198.04 ms 198.79 ms 199.56 ms]
-                      change: [+12.014% +12.589% +13.134%] (p = 0.00 < 0.05)
-                      Performance has regressed.
-Benchmarking Version control/Yrs: Warming up for 3.0000 s
-Warning: Unable to complete 20 samples in 5.0s. You may wish to increase target time to 43.1s, or reduce sample count to 10.
-Version control/Yrs     time:   [2.1098 s 2.1242 s 2.1372 s]
-                        change: [−0.3367% +0.5599% +1.4245%] (p = 0.22 > 0.05)
-                        No change in performance detected.
-Found 1 outliers among 20 measurements (5.00%)
-  1 (5.00%) low mild
-
-
-
-
-20/1
 
 
 memory profiling for Yrs
