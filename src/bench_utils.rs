@@ -12,6 +12,10 @@ pub fn yrs_doc() -> Rc<RefCell<BenchYrs>> {
     Rc::new(RefCell::new(BenchYrs::default()))
 }
 
+pub fn yrs_no_gc() -> Rc<RefCell<BenchYrs>> {
+    Rc::new(RefCell::new(BenchYrs::new_no_gc()))
+}
+
 pub fn all_docs() -> Vec<Rc<RefCell<dyn Crdt>>> {
     vec![am_doc(), yrs_doc()]
 }

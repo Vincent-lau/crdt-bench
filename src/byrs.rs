@@ -1,7 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
 use yrs::{
-    Doc, GetString, ReadTxn, StateVector, Subscription, Text, Transact, Transaction, TransactionAcqError, TransactionMut, Update, UpdateEvent, updates::{decoder::Decode, encoder::Encode}
+    Doc, GetString, Options, ReadTxn, StateVector, Subscription, Text, TextRef, Transact,
+    Transaction, TransactionAcqError, TransactionMut, Update, UpdateEvent,
+    updates::{decoder::Decode, encoder::Encode},
 };
 
 use crate::crdt::{Crdt, CrdtLib};
@@ -71,6 +73,15 @@ impl Crdt for BenchYrs {
 }
 
 impl BenchYrs {
+    pub fn new_no_gc() -> Self {
+        BenchYrs {
+            doc: Doc::with_options(Options {
+                skip_gc: true,
+                ..Options::default()
+            }),
+        }
+    }
+
     pub fn observe_update_v1<F>(&self, f: F) -> Result<Subscription, TransactionAcqError>
     where
         F: Fn(&TransactionMut<'_>, &UpdateEvent) + 'static,
@@ -86,17 +97,25 @@ impl BenchYrs {
         )
     }
 
-
     pub fn transact(&self) -> Transaction<'_> {
         self.doc.transact()
     }
 
+    pub fn transact_mut(&self) -> TransactionMut<'_> {
+        self.doc.transact_mut()
+    }
+
     pub fn encode_state_as_update_v1_from_start(&self) -> Vec<u8> {
-        self.doc.transact().encode_state_as_update_v1(&StateVector::default())
+        self.doc
+            .transact()
+            .encode_state_as_update_v1(&StateVector::default())
     }
 
     pub fn get_changes(&self, state_vector: &StateVector) -> Vec<u8> {
         self.doc.transact().encode_diff_v1(state_vector)
     }
 
+    pub fn get_text_obj(&self) -> TextRef {
+        self.doc.get_or_insert_text("text")
+    }
 }

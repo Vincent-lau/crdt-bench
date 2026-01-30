@@ -40,3 +40,6 @@ pub trait Crdt: Any {
 
     fn text(&self) -> String;
 }
+
+
+pub type DocRef = Rc<RefCell<dyn Crdt>>;
