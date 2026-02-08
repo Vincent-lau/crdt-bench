@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-automerge = "0.7.3"  # { path = "../automerge/rust/automerge" } # change to 0.6.0 for automerge 2 and 0.7.3 for 3
+automerge = { path = "../automerge/rust/automerge" } # change to 0.6.0 for automerge 2 and 0.7.3 for 3
 criterion = "0.8.1"
 dhat = "0.3.3"
 divan = "0.1.21"
@@ -17,9 +17,9 @@ yrs = "0.25.0"
 [profile.release]
 debug = true  # Include debug symbols for your code
 
-# Ensure all dependencies also have debug symbols for complete stack traces
-[profile.release.package."*"]
-debug = true
+# # Ensure all dependencies also have debug symbols for complete stack traces
+# [profile.release.package."*"]
+# debug = true
 
 
 [[bench]]
