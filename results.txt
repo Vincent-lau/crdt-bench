@@ -37,6 +37,9 @@ am doc size 7.740 KB
 
 Version control 10000 versions each have 1 chars/Automerge
                         time:   [204.07 ms 204.60 ms 205.12 ms]
+AM time breakdown
+time it takes to apply 164 ms
+time taken to diff 40 ms
 Version control 10000 versions each have 1 chars/Yrs
                         time:   [33.724 ms 33.843 ms 33.957 ms]
 Yrs doc size is 10.018 KB snapshots size 89.875 KB
@@ -55,15 +58,18 @@ memory profiling for Yrs
 dhat: Total:     16,225 bytes in 31 blocks
 dhat: At t-gmax: 15,697 bytes in 24 blocks
 dhat: At t-end:  1,200 bytes in 3 blocks
-dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_view.html
+current allocation HeapStats { total_blocks: 31, total_bytes: 16143, 
+curr_blocks: 21, curr_bytes: 15,057, max_blocks: 24, max_bytes: 15697 }
+
 
 memory profiling for Automerge3
 dhat: Total:     744,003 bytes in 530 blocks
 dhat: At t-gmax: 576,579 bytes in 219 blocks
 dhat: At t-end:  1,024 bytes in 1 blocks
-dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_view.html
+current allocation HeapStats { total_blocks: 530, total_bytes: 744003, 
+curr_blocks: 201, curr_bytes: 31,238, max_blocks: 219, max_bytes: 576579 }
 
-memory profiling for Automerge
+memory profiling for Automerge2
 dhat: Total:     8,171,615 bytes in 8,889 blocks
 dhat: At t-gmax: 2,539,957 bytes in 1,250 blocks
 dhat: At t-end:  1,024 bytes in 1 blocks
@@ -115,8 +121,6 @@ Loading doc/loading doc/Yjs
 
 
 
-
-
 Loading doc/loading without checking/Automerge
                         time:   [2.0868 ms 2.0969 ms 2.1158 ms]
 Loading doc/loading without checking/Automerge2
@@ -145,7 +149,9 @@ Apply inserted chars one by one/Automerge2
 Apply inserted chars one by one/Automerge
                         time:   [5.2950 s 5.3086 s 5.3241 s]
                         change: [+0.6656% +1.2043% +1.7986%] (p = 0.00 < 0.05)
-                        Change within noise threshold.
+Apply 6000 inserted chars one by one/automerge3 (concated updates)
+                        time:   [50.885 ms 53.441 ms 55.767 ms]
+                        change: [−10.580% −5.6289% −1.4418%] (p = 0.02 < 0.05)
 Apply inserted chars one by one/Yrs
                         time:   [12.753 ms 12.789 ms 12.832 ms]
                         change: [−38.135% −32.209% −23.937%] (p = 0.00 < 0.05)
