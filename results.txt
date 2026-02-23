@@ -1,3 +1,305 @@
+This is the benchmarking results for Automerge (2 and 3) and Yrs (the rust port
+of Yjs). Roughly speaking, here are the metrics that I measured:
+
+- Character insertion time
+  - inserting one by one (simulating user typing)
+  - inserting one big chunk (simulating pasting of a big text chunk)
+- Update apply time
+  - Store updates as above using save_incremental, and then apply them on a second
+  doc with load_incremental
+  - Do this for both 1-1 insertion and big chunk insertion
+- Document loading time
+- Memory usage in loading a doc (peak and stable)
+- Version control simulation
+  - time taken to diff against different versions of the doc
+  - time taken to revert back to previous versions of the doc
+
+Here is a summary of each of the metrics above
+
+
+* Character insertion 
+
+Character local insertion time. This is the total time taken to insert 6000 
+characters one by one. We do not necessarily care much about the total time because
+the user would mainly experience the latency from entering a character to it
+appearing on the screen.
+
+Insert 6000 characters one by one/Automerge2
+                        time:   [11.982 ms 13.148 ms 14.933 ms]
+                        change: [−85.064% −83.687% −81.864%] (p = 0.00 < 0.05)
+Insert 6000 characters one by one/Automerge3
+                        time:   [77.743 ms 78.278 ms 78.662 ms]
+                        change: [−0.2993% +0.3107% +0.9051%] (p = 0.37 > 0.05)
+                        No change in performance detected.
+Insert 6000 characters one by one/Yrs
+                        time:   [13.524 ms 13.608 ms 13.753 ms]
+                        change: [+3.3057% +4.1263% +4.9042%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+For Automerge3, the time distribution as the opset gets larger is constant. So
+at least for consecutive insertion at the end of the doc, there is not much slow
+down as the opset gets larger. The following data is taken for 6000 characters,
+but I believe this is consistent on a large doc as well, i.e. no major increase
+in time even if the opset size gets large, thanks to (remembering the cursor position?)
+[44, 32, 21, 19, 19, 19, 18, 66.. (ignoring lots of data), 20, 20, 19, 19, 20, 20, 20, 20, 20] (microseconds), total 117 (ms)
+
+Here is the time taken to paste one big chunk of text
+
+Append one big 6000 chars text/Automerge2
+                        time:   [11.683 ms 12.832 ms 14.104 ms]
+                        change: [+490.71% +547.55% +613.43%] (p = 0.00 < 0.05)
+Append one big 6000 chars text/Automerge3
+                        time:   [1.8713 ms 1.9100 ms 1.9282 ms]
+                        change: [−4.5638% −2.4922% −0.3598%] (p = 0.05 > 0.05)
+Append one big 6000 chars text/Yrs time:   [4.0505 µs 4.1351 µs 4.1949 µs]
+                        change: [−3.0480% −0.2124% +2.8266%] (p = 0.89 > 0.05)
+
+* Character application time
+
+This is the time it takes to apply the stored updates (save_incremental) one by
+one on a fresh doc and measure the time it takes. Note that the 5s one is obtained
+by literally updates in a loop, while the concatenated one is done by concatenating
+all changes and make the load_incremental only once.
+
+Apply inserted chars one by one/Automerge2
+                        time:   [27.084 ms 27.148 ms 27.214 ms]
+                        change: [−99.490% −99.489% −99.487%] (p = 0.00 < 0.05)
+Apply inserted chars one by one/Automerge3
+                        time:   [5.2950 s 5.3086 s 5.3241 s]
+                        change: [+0.6656% +1.2043% +1.7986%] (p = 0.00 < 0.05)
+Apply 6000 inserted chars one by one/automerge3 (concated updates)
+                        time:   [50.885 ms 53.441 ms 55.767 ms]
+                        change: [−10.580% −5.6289% −1.4418%] (p = 0.02 < 0.05)
+Apply inserted chars one by one/Yrs
+                        time:   [12.753 ms 12.789 ms 12.832 ms]
+                        change: [−38.135% −32.209% −23.937%] (p = 0.00 < 0.05)
+
+We do not necessarily care about the total application time, because in practice
+it would be rare to receive some updates and then apply them one by one. So the
+5s one is not as bad as it seems. We can look at why it is slow though, by looking
+at the time distribution of applying the updates. We can see this growth in time
+as we have more and more ops (and changes) in the internal data structure. Each
+time we apply a update, the opset gets larger, and hence it takes more time to
+walk the opset linearly to put the op in the right position.
+
+[126, 46, 39, 47, 39, (omitting a bunch of data) 558, 558, 562, 557, 564, 565, 557, 575, 570, 565, 566, 574, 572, 565, 581, 570, 578], total 304 (ms)
+
+This is the time taken to apply a change as a paste of a big text. This is faster
+than the 50.885 ms above (which is also applying one concatenated change) because
+this one only has a single change, but the one above has 6000 changes. Looking at
+the flamegraph, the extra time is coming from `ChangeGraph::add_change`
+
+Apply one big change/Automerge2
+                        time:   [8.5056 ms 8.5283 ms 8.5634 ms]
+                        change: [+88.517% +91.353% +93.458%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Apply one big change/Automerge
+                        time:   [4.4049 ms 4.4409 ms 4.4844 ms]
+                        change: [+0.7211% +2.0872% +3.7490%] (p = 0.01 < 0.05)
+                        Change within noise threshold.
+Apply one big change/Yrs
+                        time:   [5.3347 µs 5.6431 µs 5.7962 µs]
+                        change: [−12.590% −3.4659% +5.6927%] (p = 0.52 > 0.05)
+                        No change in performance detected.
+
+
+* Loading time
+
+Measure the time taken to load a document. N indicates the number of ops. All
+of these docs has only a single change. Should be fairly obvious that most of the
+time taken is from the change graph construction.
+
+
+N=600000
+without change graph
+Time loading doc of size 600k from disk/loading doc/Automerge
+                        time:   [2.9588 ms 2.9603 ms 2.9616 ms]
+Time loading doc of size 600k from disk/loading doc/Yjs
+                        time:   [707.05 µs 707.39 µs 707.72 µs]
+
+with change graph
+Loading doc/loading Automerge3
+                        time:   [234.23 ms 235.03 ms 235.98 ms]
+                        change: [−1.8203% −0.9724% −0.0487%] (p = 0.06 > 0.05)
+Loading doc/loading /Automerge2
+                        time:   [1.0678 s 1.0735 s 1.0795 s]
+                        change: [+0.3744% +1.4046% +2.5410%] (p = 0.02 < 0.05)
+                        Change within noise threshold.
+Loading doc/loading /Yjs
+                        time:   [338.15 µs 339.63 µs 342.35 µs]
+
+N=60000
+without change graph
+Loading doc/loading doc/Automerge
+                        time:   [199.36 µs 199.88 µs 200.51 µs]
+Loading doc/loading doc/Yjs
+                        time:   [40.415 µs 40.907 µs 41.660 µs]
+with change graph
+Loading doc/loading /Automerge
+                        time:   [20.376 ms 20.443 ms 20.589 ms]
+Loading doc/loading /Automerge
+                        time:   [77.990 ms 78.189 ms 78.423 ms]
+                        change: [+1055.2% +1060.7% +1066.0%] (p = 0.00 < 0.05)
+Loading doc/loading/Yjs
+                        time:   [39.792 µs 39.951 µs 40.147 µs]
+                        change: [+286.79% +289.98% +293.27%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+
+N=6000
+with change graph
+Loading doc/loading doc/Automerge
+                        time:   [35.996 µs 36.260 µs 36.464 µs]
+Loading doc/loading doc/Yjs
+                        time:   [10.055 µs 10.100 µs 10.145 µs]
+with change graph
+Loading doc/loading Automerge
+                        time:   [2.0868 ms 2.0969 ms 2.1158 ms]
+Loading doc/loading Automerge2
+                        time:   [6.7188 ms 6.7426 ms 6.7751 ms]
+Loading doc/loading /Yjs
+                        time:   [10.506 µs 10.539 µs 10.581 µs]
+
+
+* Memory usage
+
+These are benchmarking the memory usage of loading a document. I measured both
+the peak and stable memory (by looking at the memory usage after the `load` call).
+We may not care so much about the peak memory usage (t-gmax) as long as the 
+stable memory usage is reasonable.
+
+memory profiling for Yrs
+dhat: Total:     16,225 bytes in 31 blocks
+dhat: At t-gmax: 15,697 bytes in 24 blocks
+
+stable
+curr_bytes: 15,057
+
+
+memory profiling for Automerge3
+dhat: Total:     744,003 bytes in 530 blocks
+dhat: At t-gmax: 576,579 bytes in 219 blocks
+
+stable
+curr_bytes: 31,238
+
+memory profiling for Automerge2
+dhat: Total:     8,171,615 bytes in 8,889 blocks
+dhat: At t-gmax: 2,539,957 bytes in 1,250 blocks
+
+stable
+current allocation HeapStats { curr_bytes: 2,488,544}
+
+
+* Version control
+
+This one is a little tricky to compare because Yjs does not support version control
+by default. What I did was to take snapshots after inserting N characters, and do
+this for M versions. But even with this, it is still not easy to compare because
+for Yrs, the extra cost would be in the process of taking snapshots, and the disk
+space occupied, and if we just compare the diffing time, it seems a bit unfair
+to Automerge because the extra snapshot taking time for Yjs is not included.
+
+I did include the extra snapshot size needed for Yjs.
+
+The following measurements are diffing the last version against the first 20 versions,
+and measure the total time it takes.
+
+I believe most of the time for Automerge to do the diff is to walk through the
+change graph and configure out what is present in one version but is not in the
+other.
+
+Taking diffs without including the insertion/snapshot time
+
+Version control 1000 versions each have 10 chars/Automerge
+                        time:   [41.415 ms 41.479 ms 41.612 ms]
+Version control 1000 versions each have 10 chars/Yrs
+                        time:   [162.28 µs 165.36 µs 169.61 µs]
+
+
+Taking diffs but the e2e time, i.e. include the insertion/snapshot time
+
+Version control 1000 versions each have 10 chars/Automerge
+                        time:   [154.92 ms 155.02 ms 155.31 ms]
+Version control 1000 versions each have 10 chars/Yrs diff_range api
+                        time:   [32.615 ms 32.716 ms 32.903 ms]
+Version control 1000 versions each have 10 chars/Yrs delta api
+                        time:   [34.839 ms 34.925 ms 35.052 ms]
+Yrs doc size is 10.018 KB snapshots size 8.9875 KB
+am doc size 7.740 KB
+
+
+Version control 10000 versions each have 1 chars/Automerge
+                        time:   [204.07 ms 204.60 ms 205.12 ms]
+AM time breakdown time it takes to apply 164 ms time taken to diff 40 ms
+Version control 10000 versions each have 1 chars/Yrs
+                        time:   [33.724 ms 33.843 ms 33.957 ms]
+Yrs doc size is 10.018 KB snapshots size 89.875 KB
+am doc size 7.740 KB
+
+
+Based on the discussions I had so far with Martin and Alex, we think the important
+ones we care about is
+1. Local insertion latency into a already large doc, I think this is fine if we are inserting
+at the end of the doc, in which case the latency does not seem to increase a lot
+as the size of the doc gets larger.
+
+2. This is in contrast with the remote apply update though, which does gets longer
+and longer as the opset gets larger
+
+3. We also care about the loading time, where Automerge is about 100x slower than
+Yjs, and the majority of the time was spent in change graph construction. This is
+something we should discuss, taking sedimemtree into account as well. No point
+optimising it if sedimemtree is going to change everything dramatically.
+
+4. Real world workload, the Eg-walker paper already has some comparison there,
+and we can start from there, and repro if needed. We may also be interested in
+some non-text examples and drawing, if such data are available?
+
+
+* TODO
+
+- Document loading time (sedimemtree)
+- one change vs concated updates
+- tradeoffs between different version control mechanism
+- large doc local edits
+- egwalker datasets
+- nontext examples
+
+-----------------------------------raw data-------------------------------------
+
+
+Time loading benches/data/editing-traces/sequential_traces/ascii_only/seph-blog1.json trace/loading ...
+                        time:   [14.399 s 16.584 s 18.678 s]
+                        change: [+23.693% +44.656% +62.284%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Benchmarking Time loading benches/data/editing-traces/sequential_traces/ascii_only/s
+Benchmarking Time loading benches/data/editing-traces/sequential_traces/ascii_only/seph-blog1.json trace/loading ... #2: Warming up for 3.0000 s
+Benchmarking Time loading benches/data/editing-traces/sequential_traces/ascii_only/seph-blog1.json trace/loading ... #2: Collecting 10 samples in estimated 157.89 s (10
+Benchmarking Time loading benches/data/editing-traces/sequential_traces/ascii_only/s
+Time loading benches/data/editing-traces/sequential_traces/ascii_only/seph-blog1.json trace/loading ... #2
+                        time:   [12.051 s 13.823 s 15.375 s]
+                        change: [−11.349% +6.6241% +28.656%] (p = 0.52 > 0.05)
+                        No change in performance detected.
+
+
+
+Time loading automerge-paper trace/loading am paper/Automerge
+                        time:   [10.054 s 10.068 s 10.085 s]
+                        change: [−7.1771% −3.5037% −1.3767%] (p = 0.05 < 0.05)
+                        Performance has improved.
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high mild
+Benchmarking Time loading automerge-paper trace/loading am paper/Yjs: Warming up for 3.0000 s
+Warning: Unable to complete 10 samples in 5.0s. You may wish to increase target time to 114.9s.
+Benchmarking Time loading automerge-paper trace/loading am paper/Yjs: Collecting 10
+Time loading automerge-paper trace/loading am paper/Yjs
+                        time:   [11.115 s 11.981 s 13.070 s]
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high mild
+
+
+
 Version control and revert back to previous version
 ----
 Make changes 10 character with 10000 versions and revert to previous versions 100/Automerge
@@ -8,12 +310,11 @@ Benchmarking Make changes 10 character with 10000 versions and revert to previou
 Make changes 10 character with 10000 versions and revert to previous versions 100/Yjs
                         time:   [2.4578 s 2.4690 s 2.4811 s]
 
-Make changes 10 character with 1000 versions and revert to previous versions 100/Automerge
-                        time:   [113.41 ms 113.90 ms 114.44 ms]
-Benchmarking Make changes 10 character with 1000 versions and revert to previous versions 100/Yjs: Collecting 10 samples in estimated 5.3672 s (165 iteratio
-Make changes 10 character with 1000 versions and revert to previous versions 100/Yjs
-                        time:   [31.837 ms 32.093 ms 32.271 ms]
-
+Make changes 10 character with 1000 versions and revert to previous 100 versions/Automerge
+                        time:   [162.79 ms 188.21 ms 209.56 ms]
+Make changes 10 character with 1000 versions and revert to previous 100 versions/Yjs
+                        time:   [66.897 ms 67.007 ms 67.174 ms]
+                   
 
 Version control and take diff
 ---
@@ -25,13 +326,9 @@ Found 2 outliers among 10 measurements (20.00%)
   2 (20.00%) high mild
 Version control 1000 versions each have 10 chars/Yrs
                         time:   [32.615 ms 32.716 ms 32.903 ms]
-Found 2 outliers among 10 measurements (20.00%)
-  1 (10.00%) high mild
-  1 (10.00%) high severe
+
 Version control 1000 versions each have 10 chars/Yrs + delta tracking
                         time:   [34.839 ms 34.925 ms 35.052 ms]
-Found 1 outliers among 10 measurements (10.00%)
-  1 (10.00%) high severe
 Yrs doc size is 10.018 KB snapshots size 8.9875 KB
 am doc size 7.740 KB
 
@@ -78,16 +375,24 @@ dhat: The data has been saved to dhat-heap.json, and is viewable with dhat/dh_vi
 
 
 N=600000
-600000
-Loading doc/loading without checking/Automerge
+without change graph
+Time loading doc of size 600k from disk/loading doc/Automerge
+                        time:   [2.9588 ms 2.9603 ms 2.9616 ms]
+Found 4 outliers among 30 measurements (13.33%)
+  3 (10.00%) low severe
+  1 (3.33%) high severe
+Time loading doc of size 600k from disk/loading doc/Yjs
+                        time:   [707.05 µs 707.39 µs 707.72 µs]
+Found 1 outliers among 30 measurements (3.33%)
+  1 (3.33%) high mild
+
+with change graph 
+Loading doc/loading Automerge
                         time:   [234.23 ms 235.03 ms 235.98 ms]
                         change: [−1.8203% −0.9724% −0.0487%] (p = 0.06 > 0.05)
-                        No change in performance detected.
-Found 1 outliers among 10 measurements (10.00%)
-  1 (10.00%) high mild
-Loading doc/loading without checking/Yjs
+Loading doc/loading /Yjs
                         time:   [338.15 µs 339.63 µs 342.35 µs]
-Loading doc/loading without checking/Automerge2
+Loading doc/loading /Automerge2
                         time:   [1.0678 s 1.0735 s 1.0795 s]
                         change: [+0.3744% +1.4046% +2.5410%] (p = 0.02 < 0.05)
                         Change within noise threshold.
@@ -100,12 +405,12 @@ Loading doc/loading doc/Yjs
 
 
 
-Loading doc/loading without checking/Automerge
+Loading doc/loading /Automerge
                         time:   [20.376 ms 20.443 ms 20.589 ms]
-Loading doc/loading without checking/Automerge
+Loading doc/loading /Automerge
                         time:   [77.990 ms 78.189 ms 78.423 ms]
                         change: [+1055.2% +1060.7% +1066.0%] (p = 0.00 < 0.05)
-Loading doc/loading without checking/Yjs
+Loading doc/loading/Yjs
                         time:   [39.792 µs 39.951 µs 40.147 µs]
                         change: [+286.79% +289.98% +293.27%] (p = 0.00 < 0.05)
                         Performance has regressed.
@@ -120,25 +425,41 @@ Loading doc/loading doc/Yjs
                         time:   [10.055 µs 10.100 µs 10.145 µs]
 
 
-
-Loading doc/loading without checking/Automerge
+Loading doc/loading Automerge
                         time:   [2.0868 ms 2.0969 ms 2.1158 ms]
-Loading doc/loading without checking/Automerge2
+Loading doc/loading Automerge2
                         time:   [6.7188 ms 6.7426 ms 6.7751 ms]
-Loading doc/loading without checking/Yjs
+Loading doc/loading /Yjs
                         time:   [10.506 µs 10.539 µs 10.581 µs]
 
 
 
 
-Insert characters one by one/Automerge2
+Insert 100000 characters one by one/Automerge
+                        time:   [2.0369 s 2.2668 s 2.4633 s]
+Benchmarking Insert 100000 characters one by one/Yjs: Warming up for 3.0000 s
+Insert 100000 characters one by one/Yjs
+                        time:   [3.7712 s 4.1162 s 4.3646 s]
+Found 2 outliers among 10 measurements (20.00%)
+
+
+Insert 60000 characters one by one/Automerge
+                        time:   [1.4992 s 1.5780 s 1.6584 s]
+                        change: [+51.719% +62.843% +74.129%] (p = 0.00 < 0.05)
+Benchmarking Insert 60000 characters one by one/Yjs: Warming up for 3.0000 s
+Insert 60000 characters one by one/Yjs
+                        time:   [1.7513 s 1.7543 s 1.7579 s]
+                        change: [+63.950% +64.201% +64.523%] (p = 0.00 < 0.05)
+
+
+Insert 6000 characters one by one/Automerge2
                         time:   [11.982 ms 13.148 ms 14.933 ms]
                         change: [−85.064% −83.687% −81.864%] (p = 0.00 < 0.05)
-Insert characters one by one/Automerge
+Insert 6000 characters one by one/Automerge
                         time:   [77.743 ms 78.278 ms 78.662 ms]
                         change: [−0.2993% +0.3107% +0.9051%] (p = 0.37 > 0.05)
                         No change in performance detected.
-Insert characters one by one/Yrs
+Insert 6000 characters one by one/Yrs
                         time:   [13.524 ms 13.608 ms 13.753 ms]
                         change: [+3.3057% +4.1263% +4.9042%] (p = 0.00 < 0.05)
                         Performance has regressed.
@@ -205,9 +526,6 @@ Found 1 outliers among 10 measurements (10.00%)
 
 
 
-Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 12.1s, or reduce sample count to 40.
-
-
 
 6000
 Loading doc/load/Automerge
@@ -226,7 +544,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
      Running benches/load.rs (target/release/deps/load-16e22d98afc6e060)
 Gnuplot not found, using plotters backend
-Loading doc/loading without checking
+Loading doc/loading 
                         time:   [10.869 ms 10.960 ms 11.058 ms]
                         change: [−97.851% −97.830% −97.809%] (p = 0.00 < 0.05)
                         Performance has improved.
@@ -238,9 +556,9 @@ Loading doc/loading with checking
 
 
 automerge 3
-Benchmarking Loading doc/loading without checking: Warming up for 3.0000 s
+Benchmarking Loading doc/loading : Warming up for 3.0000 s
 Warning: Unable to complete 10 samples in 5.0s. You may wish to increase target time to 5.2s.
-Loading doc/loading without checking
+Loading doc/loading 
                         time:   [501.09 ms 504.05 ms 507.35 ms]
                         change: [−78.364% −78.201% −78.034%] (p = 0.00 < 0.05)
                         Performance has improved.
@@ -258,10 +576,10 @@ Found 2 outliers among 10 measurements (20.00%)
 
 automerg 2
 moby-dick
-Benchmarking Loading doc/loading without checking: Warming up for 3.0000 s
+Benchmarking Loading doc/loading : Warming up for 3.0000 s
 Warning: Unable to complete 10 samples in 5.0s. You may wish to increase target time to 23.2s.
-Benchmarking Loading doc/loading without checking: Collecting 10 samples in estimated 23.244 s (10 
-Loading doc/loading without checking
+Benchmarking Loading doc/loading : Collecting 10 samples in estimated 23.244 s (10 
+Loading doc/loading 
                         time:   [2.2537 s 2.2675 s 2.2814 s]
                         change: [−0.3190% +0.3063% +0.9212%] (p = 0.40 > 0.05)
                         No change in performance detected.
@@ -275,7 +593,7 @@ Loading doc/loading with checking
 
 automerge 2
 B1
-Loading doc/loading without checking
+Loading doc/loading 
                         time:   [24.580 ms 24.672 ms 24.795 ms]
 Found 11 outliers among 100 measurements (11.00%)
   2 (2.00%) low mild
