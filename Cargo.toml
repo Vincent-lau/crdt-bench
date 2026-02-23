@@ -4,18 +4,20 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-automerge = { path = "../automerge/rust/automerge" } # change to 0.6.0 for automerge 2 and 0.7.3 for 3
+automerge = "0.7.4" # { path = "../automerge/rust/automerge" } # change to 0.6.0 for automerge 2 and 0.7.3 for 3
 criterion = "0.8.1"
 dhat = "0.3.3"
 divan = "0.1.21"
+json = "0.12.4"
+pprof = {version = "0.15.0", features = ["flamegraph"]}
 rand = "0.9.2"
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"
 yrs = "0.25.0"
 
 
-[profile.release]
-debug = true  # Include debug symbols for your code
+# [profile.release]
+# debug = true  # Include debug symbols for your code
 
 # # Ensure all dependencies also have debug symbols for complete stack traces
 # [profile.release.package."*"]
@@ -40,6 +42,10 @@ harness = false
 
 [[bench]]
 name = "version"
+harness = false
+
+[[bench]]
+name = "real"
 harness = false
 
 [features]

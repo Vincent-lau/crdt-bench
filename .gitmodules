@@ -1,0 +1,6 @@
+[submodule "editing-traces"]
+	path = editing-traces
+	url = git@github.com:josephg/editing-traces.git
+[submodule "benches/data/editing-traces"]
+	path = benches/data/editing-traces
+	url = git@github.com:josephg/editing-traces.git
