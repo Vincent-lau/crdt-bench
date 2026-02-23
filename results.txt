@@ -1,6 +1,10 @@
 This is the benchmarking results for Automerge (2 and 3) and Yrs (the rust port
 of Yjs). Roughly speaking, here are the metrics that I measured:
 
+(Sidenote: if you spot something weird/does not match implementation, it is entirely
+possible that I made a mistake somewhere, ping me so I can double check! Also let
+me know if there is any metrics is missing)
+
 - Character insertion time
   - inserting one by one (simulating user typing)
   - inserting one big chunk (simulating pasting of a big text chunk)

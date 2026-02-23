@@ -10,7 +10,7 @@ Or if you want to run a particular benchmark then. See the `benches` directory
 for what is available.
 
 ```sh
-cargo bench seq_add
+cargo bench --bench seq_add
 ```
 
 Workloads:
