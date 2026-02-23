@@ -6,7 +6,7 @@ use yrs::{
     updates::{decoder::Decode, encoder::Encode},
 };
 
-use crate::crdt::{Crdt, CrdtLib};
+use crate::crdt::{Crdt, CrdtLib, DocRef};
 
 pub struct BenchYrs {
     doc: Doc,
@@ -19,11 +19,11 @@ impl Default for BenchYrs {
 }
 
 impl Crdt for BenchYrs {
-    fn new(&self) -> Rc<RefCell<dyn Crdt>> {
+    fn new(&self) -> DocRef {
         Rc::new(RefCell::new(BenchYrs::default()))
     }
 
-    fn load(&self, data: &[u8]) -> Rc<RefCell<dyn Crdt>> {
+    fn load(&self, data: &[u8]) -> DocRef {
         let doc = Doc::new();
         doc.transact_mut()
             .apply_update(Update::decode_v1(data).expect("decode data fine"))
@@ -57,8 +57,15 @@ impl Crdt for BenchYrs {
         txn.encode_update_v1()
     }
 
-    fn delete_text(&mut self, _index: usize, _len: u32) {
-        todo!()
+    fn delete_text(&mut self, index: usize, len: isize) {
+        let btext = self.doc.get_or_insert_text("text");
+        let mut txn = self.doc.transact_mut();
+        btext.remove_range(&mut txn, index as u32, len as u32);
+    }
+
+    fn insert_delete_text(&mut self, index: usize, del: isize, text: &str) {
+        self.delete_text(index, del);
+        self.insert_text(index, text);
     }
 
     fn text(&self) -> String {
@@ -69,6 +76,29 @@ impl Crdt for BenchYrs {
 
     fn crdt_lib(&self) -> crate::crdt::CrdtLib {
         CrdtLib::Yrs
+    }
+
+    fn fork(&mut self) -> crate::crdt::DocRef {
+        let doc2 = BenchYrs::default();
+        let ts = doc2.transact().state_vector();
+        let update = self.doc.transact().encode_diff_v1(&ts);
+        doc2.transact_mut()
+            .apply_update(Update::decode_v1(&update).unwrap())
+            .unwrap();
+        Rc::new(RefCell::new(doc2))
+    }
+
+    fn merge(&mut self, other: Rc<RefCell<dyn std::any::Any>>) {
+        let mut other = other.borrow_mut();
+        if let Some(doc) = other.downcast_mut::<BenchYrs>() {
+            let mut txn = self.doc.transact_mut();
+            let ts = txn.state_vector();
+            let update = doc.transact().encode_diff_v1(&ts);
+            txn.apply_update(Update::decode_v1(&update).unwrap())
+                .unwrap();
+        } else {
+            unreachable!("Incorrect doc type");
+        }
     }
 }
 

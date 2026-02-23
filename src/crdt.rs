@@ -17,9 +17,11 @@ impl fmt::Display for CrdtLib {
 }
 
 pub trait Crdt: Any {
-    fn new(&self) -> Rc<RefCell<dyn Crdt>>;
+    /// This method is just to get dynamic dispatch, the `self` parameter is not
+    /// used
+    fn new(&self) -> DocRef;
 
-    fn load(&self, data: &[u8]) -> Rc<RefCell<dyn Crdt>>;
+    fn load(&self, data: &[u8]) -> DocRef;
 
     fn crdt_lib(&self) -> CrdtLib;
 
@@ -36,10 +38,15 @@ pub trait Crdt: Any {
     /// operations will return the update
     fn insert_text_update(&mut self, index: usize, text: &str) -> Vec<u8>;
 
-    fn delete_text(&mut self, index: usize, len: u32);
+    fn delete_text(&mut self, index: usize, len: isize);
+
+    fn insert_delete_text(&mut self, index: usize, del: isize, text: &str);
 
     fn text(&self) -> String;
-}
 
+    fn fork(&mut self) -> DocRef;
+
+    fn merge(&mut self, other: Rc<RefCell<dyn Any>>);
+}
 
 pub type DocRef = Rc<RefCell<dyn Crdt>>;

@@ -1,10 +1,9 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{any::Any, cell::RefCell, rc::Rc};
 
+use crate::crdt::{Crdt, CrdtLib, DocRef};
 use automerge::{
-    AutoCommit, AutomergeError, ChangeHash, ObjId, Patch, ReadDoc, transaction::Transactable
+    AutoCommit, AutomergeError, ChangeHash, ObjId, Patch, ReadDoc, transaction::Transactable,
 };
-
-use crate::crdt::{Crdt, CrdtLib};
 
 pub struct BenchAM {
     doc: AutoCommit,
@@ -31,11 +30,11 @@ impl Default for BenchAM {
 }
 
 impl Crdt for BenchAM {
-    fn new(&self) -> Rc<RefCell<dyn Crdt>> {
+    fn new(&self) -> DocRef {
         Rc::new(RefCell::new(BenchAM::default()))
     }
 
-    fn load(&self, data: &[u8]) -> Rc<RefCell<dyn Crdt>> {
+    fn load(&self, data: &[u8]) -> DocRef {
         let doc = AutoCommit::load(data).expect("loading doc success");
         let btext = doc.get(automerge::ROOT, "btext").unwrap().unwrap().1;
         Rc::new(RefCell::new(Self { doc, btext }))
@@ -62,8 +61,16 @@ impl Crdt for BenchAM {
         self.doc.save_incremental()
     }
 
-    fn delete_text(&mut self, _index: usize, _len: u32) {
-        todo!()
+    fn delete_text(&mut self, index: usize, len: isize) {
+        self.doc
+            .splice_text(self.btext.clone(), index, len, "")
+            .unwrap();
+    }
+
+    fn insert_delete_text(&mut self, index: usize, del: isize, text: &str) {
+        self.doc
+            .splice_text(self.btext.clone(), index, del, text)
+            .unwrap();
     }
 
     fn text(&self) -> String {
@@ -72,6 +79,22 @@ impl Crdt for BenchAM {
 
     fn crdt_lib(&self) -> crate::crdt::CrdtLib {
         CrdtLib::Automerge
+    }
+
+    fn fork(&mut self) -> crate::crdt::DocRef {
+        let doc2 = self.doc.fork();
+        let btext = doc2.get(automerge::ROOT, "btext").unwrap().unwrap().1;
+        let bam = Rc::new(RefCell::new(BenchAM { doc: doc2, btext }));
+        bam
+    }
+
+    fn merge(&mut self, other: Rc<RefCell<dyn Any>>) {
+        let mut other = other.borrow_mut();
+        if let Some(doc) = other.downcast_mut::<BenchAM>() {
+            self.doc.merge(&mut doc.doc).unwrap();
+        } else {
+            unreachable!("Unknown doc type");
+        }
     }
 }
 
@@ -89,5 +112,9 @@ impl BenchAM {
 
     pub fn diff(&mut self, before: &[ChangeHash], after: &[ChangeHash]) -> Vec<Patch> {
         self.doc.diff(before, after)
+    }
+
+    pub fn text_at(&self, heads: &[ChangeHash]) -> Result<String, AutomergeError> {
+        self.doc.text_at(&self.btext, heads)
     }
 }
